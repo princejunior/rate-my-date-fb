@@ -1,0 +1,67 @@
+<div class="posts-section-dpp">
+    <h2>Create a post</h2>
+    <form method="post" action="{% url 'viewperson' person_id=person.id %}">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="content">Your Review:</label><br>
+            <textarea id="content" name="content" required></textarea>
+        </div>
+    
+        <div class="form-group">
+            <label>How was the date set up:</label><br>
+            
+            
+        </div>
+    
+        <div class="social-media-section form-group">
+            <h3>Social Media</h3>
+            <!-- Social media checkboxes and icons here -->
+            <div class="checkbox-label">
+                <input type="radio" id="instagram" name="how_met" value="Instagram">
+                {% comment %} <input type="checkbox" id="instagram" name="how_met" value="Instagram"> {% endcomment %}
+                <label class="icon-label" for="instagram"><img src="{% static '/images/instagram_icon.png' %}" alt="Instagram Icon"></label>
+            </div>
+            <div class="checkbox-label">
+                <input type="radio" id="facebook" name="how_met" value="Facebook">
+                {% comment %} <input type="checkbox" id="facebook" name="how_met" value="Facebook"> {% endcomment %}
+                <label class="icon-label" for="facebook"><img src="{% static '/images/facebook_icon.png' %}" alt="Facebook Icon"></label>
+            </div>
+            <div class="checkbox-label">
+                <input type="radio" id="twitter" name="how_met" value="Twitter">
+                {% comment %} <input type="checkbox" id="twitter" name="how_met" value="Twitter"> {% endcomment %}
+                <label class="icon-label" for="twitter"><img src="{% static '/images/twitter_x_icon.png' %}" alt="Twitter Icon"></label>
+            </div>
+        </div>
+    
+        <div class="dating-platforms-section form-group">
+            <h3>Dating Platforms</h3>
+            <!-- Dating platforms checkboxes and icons here -->
+            <div class="checkbox-label">
+            <input type="radio" id="hinge" name="how_met" value="Hinge">
+            {% comment %} <input type="checkbox" id="hinge" name="how_met" value="Hinge"> {% endcomment %}
+            <label class="icon-label" for="hinge"><img src="{% static '/images/hinge_icon.png' %}" alt="Facebook Icon"></label><br>
+        </div>
+            <div class="checkbox-label">
+            <input type="radio" id="mutual" name="how_met" value="Mutual">
+            {% comment %} <input type="checkbox" id="mutual" name="how_met" value="Mutual"> {% endcomment %}
+            <label class="icon-label" for="mutual"><img src="{% static '/images/mutual_icon.png' %}" alt="Facebook Icon"></label><br>
+        </div>
+            <div class="checkbox-label">
+            <input type="radio" id="bumble" name="how_met" value="Bumble">
+            {% comment %} <input type="checkbox" id="bumble" name="how_met" value="Bumble"> {% endcomment %}
+            <label class="icon-label" for="bumble"><img src="{% static '/images/bumble_icon.png' %}" alt="Facebook Icon"></label><br>
+        </div>
+            <div class="checkbox-label">
+            <input type="radio" id="in_person" name="how_met" value="In Person">
+            {% comment %} <input type="checkbox" id="in_person" name="how_met" value="In Person"> {% endcomment %}
+            <label class="icon-label" for="in_person"><img src="{% static '/images/anonymous_user.jpg' %}" alt="In Person Icon"></label><br>
+        </div>
+        </div>
+    
+        <button type="submit">Post</button>
+    </form>
+    
+    <hr>
+    <h2>Posts</h2>
+   
+</div> 
