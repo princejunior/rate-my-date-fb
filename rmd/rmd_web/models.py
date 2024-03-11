@@ -1,62 +1,15 @@
 from django.db import models
 from django.conf import settings
-from django.contrib.auth.models import User, UserManager,AbstractBaseUser, PermissionsMixin
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, UserManager
 from django.utils import timezone
 import uuid
 
 
-class Person(models.Model):
-    id = models.CharField(primary_key=True, max_length=100)  # Assuming Firestore document IDs are less than 100 characters
-    # Model for storing information about a person
-    first_name = models.CharField(max_length=255)
-    last_name = models.CharField(max_length=255)
-    instagram = models.CharField(max_length=100, blank=True, null=True)  # Optional Instagram handle
-    joined_date = models.DateField(null=True)  # Date when the person joined the platform
+# -----------------------------------
+# User / Authentication Models
+# -----------------------------------
 
-class Post(models.Model):
-    # Model for storing posts associated with a person
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-
-    # user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)  # User who created the post
-    person = models.ForeignKey(Person, on_delete=models.CASCADE, null=True)  # Person associated with the post
-    content = models.TextField(default='')  # Content of the post
-    how_met = models.CharField(max_length=100, null=True)  # How the user met the person
-    agree = models.IntegerField(default=0)  # Number of agreements on the post
-    disagree = models.IntegerField(default=0)  # Number of disagreements on the post
-    created_at = models.DateTimeField(default=timezone.now, editable=False, blank=True)  # Date and time when the post was created
-
-    def save(self, *args, **kwargs):
-        # Override save method to set created_at when the post is first saved
-        if not self.pk:
-            self.created_at = timezone.now()
-        return super(Post, self).save(*args, **kwargs)
-
-class Review(models.Model):
-    person_id = models.CharField(max_length=100)  # Assuming person_id is a string
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    comment = models.TextField(blank=True)  # Optional comment field
-    time_created = models.DateTimeField(auto_now_add=True)  # Automatically set to current date and time
-    how_met = models.CharField(max_length=100)
-
-    def __str__(self):
-        return f"Review by {self.user.username} for person {self.person_id}"
-
-    
-    
-class Comment(models.Model):
-    # Model for storing comments on posts
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, null=True)  # Post that the comment belongs to
-    comment_date_created = models.DateField(null=True)  # Date when the comment was created
-    agree = models.CharField(max_length=255)  # Agree on the comment
-    disagree = models.IntegerField(null=True)  # Disagree on the comment
-
-
-
-
-
-
-
-# AUTHENTIACTION
+# Custom user manager for creating users and superusers with email as the primary identifier.
 class CustomUserManager(UserManager) :
     def _create_user(self, email,password, **extra_fields):
         if not email:
@@ -76,7 +29,8 @@ class CustomUserManager(UserManager) :
         extra_fields.setdefault('is_staff',True)
         extra_fields.setdefault('is_superuser', True)
         return self._create_user(email,password, **extra_fields)
-    
+
+# Custom user model that uses email instead of username as the primary identifier.
 class User(AbstractBaseUser, PermissionsMixin) :
     id = models.UUIDField(primary_key=True,default=uuid.uuid4,editable=False)
     email = models.EmailField(blank=True, default='', unique=True)
@@ -107,3 +61,59 @@ class User(AbstractBaseUser, PermissionsMixin) :
     #     return self.name or self.email.split('@')[0]
     def get_short_name(self):
         return self.email.split('@')[0]
+
+
+# -----------------------------------
+# Core Application Models
+# -----------------------------------    
+
+# Model for storing information about a person, including name, Instagram handle, and join date.
+class Person(models.Model):
+    id = models.CharField(primary_key=True, max_length=100)  # Assuming Firestore document IDs are less than 100 characters
+    # Model for storing information about a person
+    first_name = models.CharField(max_length=255)
+    last_name = models.CharField(max_length=255)
+    instagram = models.CharField(max_length=100, blank=True, null=True)  # Optional Instagram handle
+    joined_date = models.DateField(null=True)  # Date when the person joined the platform
+
+# Model for storing posts associated with a person, including content, how met, and agreement/disagreement counts.
+class Post(models.Model):
+    # Model for storing posts associated with a person
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+
+    # user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)  # User who created the post
+    person = models.ForeignKey(Person, on_delete=models.CASCADE, null=True)  # Person associated with the post
+    content = models.TextField(default='')  # Content of the post
+    how_met = models.CharField(max_length=100, null=True)  # How the user met the person
+    agree = models.IntegerField(default=0)  # Number of agreements on the post
+    disagree = models.IntegerField(default=0)  # Number of disagreements on the post
+    created_at = models.DateTimeField(default=timezone.now, editable=False, blank=True)  # Date and time when the post was created
+
+    def save(self, *args, **kwargs):
+        # Override save method to set created_at when the post is first saved
+        if not self.pk:
+            self.created_at = timezone.now()
+        return super(Post, self).save(*args, **kwargs)
+
+# Model for storing reviews about a person, including the reviewer, comment, and how they met.
+class Review(models.Model):
+    person_id = models.CharField(max_length=100)  # Assuming person_id is a string
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    comment = models.TextField(blank=True)  # Optional comment field
+    time_created = models.DateTimeField(auto_now_add=True)  # Automatically set to current date and time
+    how_met = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f"Review by {self.user.username} for person {self.person_id}"
+
+# Model for storing comments on posts, including the comment content, and agreement/disagreement counts.    
+class Comment(models.Model):
+    # Model for storing comments on posts
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, null=True)  # Post that the comment belongs to
+    comment_date_created = models.DateField(null=True)  # Date when the comment was created
+    agree = models.CharField(max_length=255)  # Agree on the comment
+    disagree = models.IntegerField(null=True)  # Disagree on the comment
+
+
+
+
