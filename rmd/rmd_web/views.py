@@ -6,12 +6,25 @@ from django.db.models import Q
 from django.utils import timezone
 from django.contrib import messages
 from datetime import datetime
+# GOOGLE
 from google.cloud.firestore_v1 import SERVER_TIMESTAMP
-from firebase_admin import firestore
+from firebase_admin import firestore, storage
+from allauth.account.signals import user_signed_up
+from django.dispatch import receiver
 
 # Import your models and forms
 from .models import User, Person, Post, Comment
-from .forms import SignUpForm, UserLoginForm, ReviewForm, PostForm, PersonForm
+from .forms import SignUpForm, UserLoginForm, ReviewForm, PostForm, PersonForm, UserProfileForm
+
+def google_signup(request):
+    # Redirects the user to the Google login page provided by django-allauth
+    return redirect('/accounts/google/login/')
+
+@receiver(user_signed_up)
+def after_user_signed_up(request, user, **kwargs):
+    # Perform your custom actions here
+    # For example, create a UserProfile instance for the new user
+    pass
 
 # AUTHENTICATION 
 def signup(request):
@@ -64,6 +77,65 @@ def user_logout(request):
     return redirect('login')
 
 # Profile and People Management
+@login_required
+def add_user_profile(request):
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST, request.FILES)
+        if form.is_valid():
+            # Assuming you have initialized Firebase Admin SDK earlier in your project
+            user_profile_data = form.cleaned_data
+
+            # Handle the uploaded image file
+            profile_picture = request.FILES.get('profile_picture')
+            if profile_picture:
+                # Construct a unique filename, could use the user's email or other unique identifier
+                filename = f"profile_pictures/{user_profile_data['email']}_{profile_picture.name}"
+                # Create a reference to the uploaded file in Firebase Storage
+                blob = storage.bucket().blob(filename)
+                blob.upload_from_string(
+                    profile_picture.read(), 
+                    content_type=profile_picture.content_type
+                )
+                blob.make_public()
+                user_profile_data['profile_picture'] = blob.public_url
+
+            # Extract interests and handle other form data for Firebase saving logic here
+            print(user_profile_data)  # Placeholder for further Firebase logic
+
+            return redirect('success_url')  # Redirect to a success page
+    else:
+        form = UserProfileForm()
+    return render(request, 'profile/add_user_profile.html', {'form': form})
+
+def user_profile(request, user_email):
+    db = firestore.client()
+    user_profile_doc = db.collection('user_profiles').document(user_email).get()
+    if user_profile_doc.exists:
+        user_profile_data = user_profile_doc.to_dict()
+        return render(request, 'profile/user_profile.html', {'profile': user_profile_data})
+    else:
+        return render(request, 'profile/user_profile.html', {'error': 'User profile not found'})
+
+@login_required
+def edit_user_profile(request, user_email):
+    db = firestore.client()
+    document_reference = db.collection('user_profiles').document(user_email)
+
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST, request.FILES)
+        if form.is_valid():
+            profile_data = form.cleaned_data
+            # Assume profile_picture handling and interests are included in form.cleaned_data
+            document_reference.update(profile_data)
+            return redirect('profile_view', user_email=user_email)  # Redirect to the profile view
+    else:
+        doc = document_reference.get()
+        if doc.exists:
+            form = UserProfileForm(initial=doc.to_dict())  # Pre-populate form with existing data
+        else:
+            form = UserProfileForm()  # Empty form if document does not exist
+
+    return render(request, 'profiles/edit_profile.html', {'form': form, 'user_email': user_email})
 
 # Create a new person profile. Only accessible to logged-in users.
 @login_required
@@ -98,7 +170,7 @@ def create_person(request):
     else:
         form = PersonForm()
     
-    return render(request, 'pages/create_person.html', {'form': form, 'current_date': timezone.now().strftime('%Y-%m-%d')})
+    return render(request, 'create/create_person.html', {'form': form, 'current_date': timezone.now().strftime('%Y-%m-%d')})
 
 # def create_person(request):
 #     if request.method == 'POST':
@@ -255,7 +327,7 @@ def createNewPerson(request):
     context = {
         'user': request.user  # Pass the user object to the context
     }
-    return render(request, 'pages/creat_person.html', context=context)
+    return render(request, 'create/create_person.html', context=context)
 
 # Create a new post associated with a person profile. Requires login.
 @login_required
@@ -273,7 +345,7 @@ def create_post(request, person_id):
             return redirect('view_person', person_id=person_id)
     else:
         form = PostForm()
-    return render(request, 'pages/create_post.html', {'form': form})
+    return render(request, 'create/create_post.html', {'form': form})
 
 # Add a comment to a post. Requires login.
 @login_required

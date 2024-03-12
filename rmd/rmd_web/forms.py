@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from .models import User, Review, Post, Comment, Person
+import json
 
 # -----------------------------------
 # Authentication Forms
@@ -30,7 +31,30 @@ class UserLoginForm(forms.Form):
     email = forms.EmailField()
     password = forms.CharField(widget=forms.PasswordInput)
 
+class UserProfileForm(forms.Form):
+    email = forms.EmailField(label='Email', required=True)
+    full_name = forms.CharField(label='Full Name', max_length=255, required=True)
+    profile_picture = forms.URLField(label='Profile Picture URL', required=False)
+    professional_background = forms.CharField(label='Professional Background', widget=forms.Textarea, required=False)
     
+    # Interests are handled separately as checkboxes in the template, so they're not explicitly defined here
+    
+    privacy_settings = forms.CharField(label='Privacy Settings', widget=forms.Textarea, required=False,
+                                       help_text='Enter privacy settings in JSON format.')
+
+    def clean_privacy_settings(self):
+        privacy = self.cleaned_data.get('privacy_settings')
+        try:
+            privacy_json = json.loads(privacy)
+        except json.JSONDecodeError:
+            raise forms.ValidationError('Invalid JSON format for privacy settings.')
+        return privacy_json
+
+    def clean(self):
+        cleaned_data = super().clean()
+        # Perform any additional custom validation here
+        return cleaned_data
+
 # -----------------------------------
 # Core Application Forms
 # -----------------------------------

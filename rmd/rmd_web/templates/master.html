@@ -331,10 +331,14 @@
             {% comment %} <a href="/viewperson">Notifications</a> {% endcomment %}
             {% comment %} <a href="/viewperson">Notifications</a> {% endcomment %}
             <a href="/explore">Explore</a>
+            <a href="/profile">Profile</a>
             {% if user.is_authenticated %}
-                <a href="/user-logout">Logout</a>
+                <a href="/logout">Logout</a>
             {% else %}
-                <a href="/signup">Sign Up</a>
+                {% comment %} <a href="/signup">Sign Up</a> {% endcomment %}
+                <a href="/accounts/signup/google/">Sign Up</a>
+
+                <a href="/login">Log in </a>
             {% endif %}
 
         </div>

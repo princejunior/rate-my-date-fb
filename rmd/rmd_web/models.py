@@ -67,6 +67,18 @@ class User(AbstractBaseUser, PermissionsMixin) :
 # Core Application Models
 # -----------------------------------    
 
+class UserProfile(models.Model):
+    email = models.EmailField(unique=True)
+    full_name = models.CharField(max_length=255)
+    profile_picture = models.URLField(blank=True)
+    professional_background = models.JSONField(default=list)  # Stores an array of strings
+    interests = models.JSONField(default=list)  # Stores an array of strings
+    privacy_settings = models.JSONField(default=dict)  # Stores a map
+
+    def __str__(self):
+        return self.full_name
+    
+    
 # Model for storing information about a person, including name, Instagram handle, and join date.
 class Person(models.Model):
     id = models.CharField(primary_key=True, max_length=100)  # Assuming Firestore document IDs are less than 100 characters

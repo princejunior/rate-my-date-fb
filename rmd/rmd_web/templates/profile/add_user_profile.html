@@ -1,0 +1,89 @@
+{% extends "master.html" %}
+
+{% block title %}
+Add User Profile
+{% endblock %}
+
+
+{% block content %}
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; }
+        input, textarea { width: 100%; padding: 8px; }
+        button { padding: 10px 15px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+    </style>
+
+    {% comment %} <h2>Add User Profile</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <fieldset>
+            <legend>Interests</legend>
+            <label><input type="checkbox" name="interests" value="Reading"> Reading</label><br>
+            <label><input type="checkbox" name="interests" value="Gaming"> Gaming</label><br>
+            <!-- Add more interests as needed -->
+        </fieldset>
+        <button type="submit">Submit</button>
+    </form> {% endcomment %}
+   
+    <h2>Add User Profile</h2>
+    <form id="userProfileForm">
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+        </div>
+        <div class="form-group">
+            <label for="fullName">Full Name:</label>
+            <input type="text" id="fullName" name="fullName" required>
+        </div>
+        <div class="form-group">
+            <label for="profilePicture">Profile Picture URL:</label>
+            <input type="url" id="profilePicture" name="profilePicture">
+        </div>
+        <div class="form-group">
+            <label for="professionalBackground">Professional Background (comma-separated):</label>
+            <input type="text" id="professionalBackground" name="professionalBackground">
+        </div>
+        <div class="form-group">
+            <label>Interests:</label>
+            <div>
+                <input type="checkbox" id="interestReading" name="interests" value="Reading">
+                <label for="interestReading">Reading</label>
+            </div>
+            <div>
+                <input type="checkbox" id="interestGaming" name="interests" value="Gaming">
+                <label for="interestGaming">Gaming</label>
+            </div>
+            <div>
+                <input type="checkbox" id="interestHiking" name="interests" value="Hiking">
+                <label for="interestHiking">Hiking</label>
+            </div>
+            <div>
+                <input type="checkbox" id="interestCooking" name="interests" value="Cooking">
+                <label for="interestCooking">Cooking</label>
+            </div>
+            <div>
+                <input type="checkbox" id="interestArt" name="interests" value="Art">
+                <label for="interestArt">Art</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="privacySettings">Privacy Settings (JSON format):</label>
+            <textarea id="privacySettings" name="privacySettings" rows="5"></textarea>
+        </div>
+        <button type="submit">Submit</button>
+    </form>
+
+    <script>
+        document.getElementById('userProfileForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            // Here you would normally fetch() to send the form data to your server
+            alert('Form submitted! Check the console for output.');
+            console.log("Form Data:", new FormData(event.target));
+            // Reset form after submission for demo purposes
+            event.target.reset();
+        });
+    </script>
+{% endblock %}

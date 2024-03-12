@@ -1,0 +1,28 @@
+{% extends "master.html" %}
+
+{% block title %}
+Profile
+{% endblock %}
+
+
+{% block content %}
+    <h2>User Profile</h2>
+    {% if profile %}
+        <div>
+            <h3>{{ profile.full_name }}</h3>
+            <img src="{{ profile.profile_picture }}" alt="Profile Picture" style="width: 150px; height: auto;">
+            <p>Email: {{ profile.email }}</p>
+            <p>Professional Background: {{ profile.professional_background }}</p>
+            <p>Interests:</p>
+            <ul>
+                {% for interest in profile.interests %}
+                    <li>{{ interest }}</li>
+                {% endfor %}
+            </ul>
+            <!-- Displaying privacy settings as JSON for simplicity -->
+            <p>Privacy Settings: {{ profile.privacy_settings|safe }}</p>
+        </div>
+    {% else %}
+        <p>{{ error }}</p>
+    {% endif %}
+{% endblock %}

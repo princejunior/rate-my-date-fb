@@ -1,0 +1,13 @@
+
+{% extends "master.html" %}
+
+{% block title %}
+Google Sign Up
+{% endblock %}
+
+
+{% block content %}
+{% comment %} <a href="{% url 'socialaccount_connections' %}">Sign Up / Log In with Google</a> {% endcomment %}
+
+<a href="{% url 'socialaccount_login' 'google' %}">Sign Up / Log In with Google</a>
+{% endblock %}

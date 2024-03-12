@@ -54,6 +54,13 @@ ALLOWED_HOSTS = []
 # ------------------------------------------------------------------------------
 
 INSTALLED_APPS = [
+    # Required by allauth
+    'django.contrib.sites', 
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+    #
     'rmd_web',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -61,7 +68,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
+
 ]
 
 MIDDLEWARE = [
@@ -72,6 +79,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+     # Required by allauth
+    'allauth.account.middleware.AccountMiddleware',  
+    #
 ]
 
 ROOT_URLCONF = 'rmd_config.urls'
@@ -130,6 +140,9 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+
+
+
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 # ------------------------------------------------------------------------------
@@ -161,3 +174,29 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Initialize Firebase Admin SDK
 cred = credentials.Certificate("fire/rate-my-date-fca52-cf894cb26c1d.json")
 firebase_admin.initialize_app(cred)
+
+
+# Required by allauth
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+SOCIALACCOUNT_PROVIDERS = {
+    # 'google': {
+    #     'EMAIL_AUTHENTICATION': True
+    # },
+    # 'signup': 'allauth.socialaccount.forms.SignupForm',
+}
+
+SITE_ID = 1
+
+# Optional allauth settings
+ACCOUNT_EMAIL_REQUIRED = True
+# ACCOUNT_UNIQUE_EMAIL = True
+# ACCOUNT_USERNAME_REQUIRED = True
+LOGIN_REDIRECT_URL = '/'  # Redirect to home after login
+# Pssibly delete data below
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+ACCOUNT_AUTHENTICATION_METHOD = 'EMAIL'
+#
