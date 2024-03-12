@@ -404,3 +404,6 @@ def home(request):
         return render(request, 'pages/home.html', context=context)
 
 
+def group_events(request):
+    return render(request, 'pages/group_events.html')
+    

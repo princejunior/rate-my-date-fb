@@ -32,4 +32,8 @@ urlpatterns = [
     path('accounts/signup/google/', views.google_signup, name='google_signup'),
     # path('accounts/profile/', views.profile, name="profile"),
     # path('accounts/other/', views.other, name="other"),
+    
+    # GROUP EVENTS
+    path('group_events/', views.group_events, name='group_events'),
+    
 ]
